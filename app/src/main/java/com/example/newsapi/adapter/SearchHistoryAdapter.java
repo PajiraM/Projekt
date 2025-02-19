@@ -11,12 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder> {
-    private List<String> searches = new ArrayList<>();
-    private OnSearchItemClickListener listener;
 
-    public interface OnSearchItemClickListener {
-        void onSearchItemClick(String query);
-    }
+        private List<String> searches = new ArrayList<>();
+        private OnSearchItemClickListener listener;
+
+        public interface OnSearchItemClickListener {
+            void onSearchItemClick(String query);
+            void onSearchItemLongClick(String query);
+        }
 
     public SearchHistoryAdapter(OnSearchItemClickListener listener) {
         this.listener = listener;
@@ -35,6 +37,10 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
         String search = searches.get(position);
         holder.textView.setText(search);
         holder.itemView.setOnClickListener(v -> listener.onSearchItemClick(search));
+        holder.itemView.setOnLongClickListener(v -> {
+            listener.onSearchItemLongClick(search);
+            return true;
+        });
     }
 
     @Override
@@ -55,4 +61,5 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
             textView = itemView.findViewById(R.id.searchText);
         }
     }
+
 }

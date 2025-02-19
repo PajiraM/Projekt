@@ -1,10 +1,11 @@
 package com.example.newsapi;
 
+import static com.example.newsapi.R.*;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,18 +55,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
+    }
 
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    MainActivity.super.onBackPressed();
-                }
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -108,17 +106,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onResponse(Call<NewsResponse> call, Response<NewsResponse> response) {
                 if (response.isSuccessful()) {
-
                     Log.d("MainActivity", "News fetched successfully");
                 } else {
-
                     Log.e("MainActivity", "Error: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<NewsResponse> call, Throwable t) {
-
                 Log.e("MainActivity", "Failure: " + t.getMessage());
             }
         });

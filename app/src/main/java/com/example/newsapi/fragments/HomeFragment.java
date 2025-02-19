@@ -38,22 +38,41 @@ public class HomeFragment extends Fragment implements SearchHistoryAdapter.OnSea
     private SearchHistory searchHistory;
     private EditText searchEdit;
     private Button searchButton;
+    private boolean isSearchActive = false;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-
         searchHistory = new SearchHistory(getContext());
         initializeViews(view);
         setupRecyclerViews();
         setupSearch();
-
-
         updateSearchHistory();
 
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(),
+                new androidx.activity.OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (isSearchActive) {
+                            resetToInitialState();
+                        } else {
+                            setEnabled(false);
+                            requireActivity().onBackPressed();
+                        }
+                    }
+                });
+
         return view;
+    }
+
+    private void resetToInitialState() {
+        isSearchActive = false;
+        searchEdit.setText("");
+        historyRecyclerView.setVisibility(View.VISIBLE);
+        updateSearchHistory();
+        searchNews("hrvatska");
     }
 
     private void initializeViews(View view) {
@@ -66,11 +85,9 @@ public class HomeFragment extends Fragment implements SearchHistoryAdapter.OnSea
     }
 
     private void setupRecyclerViews() {
-
         newsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         newsAdapter = new NewsAdapter(getContext());
         newsRecyclerView.setAdapter(newsAdapter);
-
 
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         historyAdapter = new SearchHistoryAdapter(this);
@@ -79,17 +96,18 @@ public class HomeFragment extends Fragment implements SearchHistoryAdapter.OnSea
 
     private void setupSearch() {
         newsApiService = NewsApiClient.getInstance().getNewsApiService();
-
         searchNews("hrvatska");
     }
 
     private void performSearch(String query) {
         if (!query.isEmpty()) {
+            isSearchActive = true;
             Log.d("NewsAPI", "Započinjem pretraživanje za: " + query);
             searchHistory.addSearch(query);
             updateSearchHistory();
             searchNews(query);
             historyRecyclerView.setVisibility(View.GONE);
+            searchEdit.setText(query); // prikaži trenutni pojam za pretraživanje
         } else {
             Log.d("NewsAPI", "Upit za pretragu je prazan.");
         }
@@ -103,6 +121,7 @@ public class HomeFragment extends Fragment implements SearchHistoryAdapter.OnSea
 
     @Override
     public void onSearchItemClick(String query) {
+        searchEdit.setText(query);
         performSearch(query);
     }
 
@@ -133,4 +152,10 @@ public class HomeFragment extends Fragment implements SearchHistoryAdapter.OnSea
             }
         });
     }
+    @Override
+    public void onSearchItemLongClick(String query) {
+        searchHistory.removeSearch(query);
+        updateSearchHistory();
+    }
+
 }

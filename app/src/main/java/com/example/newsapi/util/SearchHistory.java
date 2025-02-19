@@ -49,4 +49,9 @@ public class SearchHistory {
     public void clearHistory() {
         preferences.edit().remove(KEY_SEARCH_HISTORY).apply();
     }
+    public void removeSearch(String query) {
+        List<String> searches = getSearchHistory();
+        searches.remove(query);
+        saveSearchHistory(searches);
+    }
 }
